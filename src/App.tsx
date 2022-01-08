@@ -1,26 +1,16 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { lightTheme, darkTheme, Theme } from "./styles/themes";
+import { ThemeProvider } from "styled-components";
+import { GlobalStyle } from "./styles/GlobalStyle";
+import { useState } from "react";
+import Minesweeper from "./components/Minesweeper";
 
-function App() {
+export default function App() {
+  const [theme, setTheme] = useState(Theme.Light);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme === Theme.Light ? lightTheme : darkTheme}>
+      <GlobalStyle />
+      <Minesweeper setTheme={setTheme} />
+    </ThemeProvider>
   );
 }
-
-export default App;
