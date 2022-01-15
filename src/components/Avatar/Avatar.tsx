@@ -6,19 +6,18 @@ import { ReactComponent as Thinking } from "../../assets/svg/thinking.svg";
 import { ReactComponent as Cool } from "../../assets/svg/cool.svg";
 import { ReactComponent as Skull } from "../../assets/svg/skull.svg";
 import styled from "styled-components";
+import { useSession } from "../../stores/sessionStore";
 
-type AvatarProps = {
-  sessionState: SessionState;
-};
+export default function Avatar() {
+  const { interactionState } = useSession();
 
-export default function Avatar({ sessionState }: AvatarProps) {
   function getEmoji() {
-    if (sessionState === SessionState.Idle) return <Happy />;
-    if (sessionState === SessionState.Anticipation) return <Shocked />;
-    if (sessionState === SessionState.JustFlagged) return <Smart />;
-    if (sessionState === SessionState.Confused) return <Thinking />;
-    if (sessionState === SessionState.Victory) return <Cool />;
-    if (sessionState === SessionState.GameOver) return <Skull />;
+    if (interactionState === SessionState.Idle) return <Happy />;
+    if (interactionState === SessionState.Anticipation) return <Shocked />;
+    if (interactionState === SessionState.JustFlagged) return <Smart />;
+    if (interactionState === SessionState.Confused) return <Thinking />;
+    if (interactionState === SessionState.Victory) return <Cool />;
+    if (interactionState === SessionState.GameOver) return <Skull />;
   }
 
   return <S_Avatar>{getEmoji()}</S_Avatar>;

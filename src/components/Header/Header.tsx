@@ -1,33 +1,26 @@
+import { useSession } from "../../stores/sessionStore";
+import { useSessionSeed } from "../../stores/sessionSeedStore";
 import { SessionState } from "../../utils/sessionConstants";
 import styled from "styled-components";
 
-type HeaderProps = {
-  sessionState: SessionState;
-  cols: number;
-  rows: number;
-  nrMines: number;
-};
+export default function Header() {
+  const { cols, rows, nrMines } = useSessionSeed();
+  const { interactionState } = useSession();
 
-export default function Header({
-  sessionState,
-  cols,
-  rows,
-  nrMines,
-}: HeaderProps) {
   function getTitleMsg() {
-    if (sessionState === SessionState.Victory) return "You won!";
-    if (sessionState === SessionState.GameOver) return "Boom!";
+    if (interactionState === SessionState.Victory) return "You won!";
+    if (interactionState === SessionState.GameOver) return "Boom!";
     return "Minesweeper";
   }
 
   function getSubtitleMsg() {
-    if (sessionState === SessionState.Victory) {
+    if (interactionState === SessionState.Victory) {
       let mineStr = `mine${nrMines !== 1 ? "s" : ""}`;
       let density = nrMines / (cols * rows);
       let densityStr =
         density > 0.13 ? "nice" : density > 0.15 ? "awesome" : "ludicrous";
       return `A ${cols} x ${rows} grid with ${nrMines} ${mineStr}, ${densityStr}!`;
-    } else if (sessionState === SessionState.GameOver)
+    } else if (interactionState === SessionState.GameOver)
       return "Better luck next time...";
 
     return "";

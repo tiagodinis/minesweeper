@@ -40,9 +40,9 @@ Session state transitions
 
 export enum SessionState {
   Idle,
-  Anticipation,
-  JustFlagged,
-  Confused,
+  Anticipation, // Avatar
+  JustFlagged, // Avatar
+  Confused, // Avatar
   Victory,
   GameOver,
 }

@@ -8,64 +8,60 @@ import Avatar from "./Avatar/Avatar";
 import Indicators from "./Indicators/Indicators";
 import { SessionState } from "../utils/sessionConstants";
 import Header from "./Header/Header";
+import { SessionSeedProvider } from "../stores/sessionSeedStore";
+import { SessionProvider } from "../stores/sessionStore";
 
 type MinesweeperProps = {
   setTheme: (newTheme: Theme) => void;
 };
 
 export default function Minesweeper({ setTheme }: MinesweeperProps) {
-  const {
-    cols,
-    rows,
-    nrMines,
-    registerSettings,
-    sessionState,
-    revealedOnce,
-    nrFlags,
-    tileValues,
-    tileStates,
-    restartGameSession,
-    handleTileInteraction,
-  } = useGameSession();
+  // const {
+  //   cols,
+  //   rows,
+  //   nrMines,
+  //   registerSettings,
+  //   sessionState,
+  //   revealedOnce,
+  //   nrFlags,
+  //   tileValues,
+  //   tileStates,
+  //   restartGameSession,
+  //   handleTileInteraction,
+  // } = useGameSession();
 
   return (
     <>
       <S_Minesweeper>
-        <Header
-          sessionState={sessionState}
-          cols={cols}
-          rows={rows}
-          nrMines={nrMines}
-        />
+        <SessionSeedProvider>
+          <SessionProvider>
+            <Header />
 
-        <S_BoardWrapper>
-          <S_Board>
-            <S_BoardHeader>
-              <Indicators
-                nrMines={nrMines}
-                nrFlags={nrFlags}
-                revealedOnce={revealedOnce}
-                isRunning={
-                  sessionState !== SessionState.Victory &&
-                  sessionState !== SessionState.GameOver
-                }
-              />
-              <Avatar sessionState={sessionState} />
-              <SettingsManager
-                registerSettings={registerSettings}
-                restartGameSession={restartGameSession}
-              />
-            </S_BoardHeader>
+            <S_BoardWrapper>
+              <S_Board>
+                <S_BoardHeader>
+                  {/* <Indicators
+                    nrMines={nrMines}
+                    nrFlags={nrFlags}
+                    revealedOnce={revealedOnce}
+                    isRunning={
+                      sessionState !== SessionState.Victory &&
+                      sessionState !== SessionState.GameOver
+                    }
+                  /> */}
+                  <Avatar />
+                  {/*
+                  <SettingsManager
+                    registerSettings={registerSettings}
+                    restartGameSession={restartGameSession}
+                  /> */}
+                </S_BoardHeader>
 
-            <Grid
-              cols={cols}
-              rows={rows}
-              tileValues={tileValues}
-              tileStates={tileStates}
-              handleTileInteraction={handleTileInteraction}
-            />
-          </S_Board>
-        </S_BoardWrapper>
+                <Grid />
+              </S_Board>
+            </S_BoardWrapper>
+          </SessionProvider>
+        </SessionSeedProvider>
       </S_Minesweeper>
 
       <ThemeToggler setTheme={setTheme} />

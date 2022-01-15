@@ -1,30 +1,14 @@
+import { useSessionSeed } from "../../stores/sessionSeedStore";
+import { useSession } from "../../stores/sessionStore";
 import { Tile } from "../Tile/Tile";
 import styled from "styled-components";
-import {
-  Adjacency,
-  TileInteraction,
-  TileState,
-} from "../../utils/sessionConstants";
 
-type GridProps = {
-  cols: number;
-  rows: number;
-  tileValues: Adjacency[];
-  tileStates: TileState[];
-  handleTileInteraction: (
-    index: number,
-    state: TileState,
-    interaction: TileInteraction
-  ) => void;
-};
+export default function Grid() {
+  const { cols, rows, tileValues } = useSessionSeed();
+  const { tileStates } = useSession();
 
-export default function Grid({
-  cols,
-  rows,
-  tileValues,
-  tileStates,
-  handleTileInteraction,
-}: GridProps) {
+  // console.log("Grid");
+
   return (
     <S_OuterGrid>
       <S_Grid cols={cols} rows={rows}>
@@ -34,7 +18,6 @@ export default function Grid({
             index={index}
             value={tv}
             state={tileStates[index]}
-            handleTileInteraction={handleTileInteraction}
           />
         ))}
       </S_Grid>

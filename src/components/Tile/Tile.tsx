@@ -1,30 +1,20 @@
-import {
-  Adjacency,
-  TileState,
-  TileInteraction,
-} from "../../utils/sessionConstants";
+import { Adjacency, TileState } from "../../utils/sessionConstants";
 import { ReactComponent as Flag } from "../../assets/svg/flag.svg";
 import { ReactComponent as NavalMine } from "../../assets/svg/navalMine.svg";
 import styled, { DefaultTheme, useTheme } from "styled-components";
+import { memo } from "react";
+import { useSessionDispatch } from "../../stores/sessionStore";
+import { SessionActionType } from "../../hooks/makeSessionStore";
 
 type TileProps = {
   index: number;
   value: Adjacency;
   state: TileState;
-  handleTileInteraction: (
-    index: number,
-    state: TileState,
-    interaction: TileInteraction
-  ) => void;
 };
 
-export function Tile({
-  index,
-  value,
-  state,
-  handleTileInteraction,
-}: TileProps) {
+export const Tile = memo(function Tile({ index, value, state }: TileProps) {
   const theme = useTheme();
+  const dispatchGrid = useSessionDispatch();
 
   function getTileContent(state: TileState) {
     if (state === TileState.Flagged) return <Flag fill={theme.fontColor} />;
@@ -34,21 +24,20 @@ export function Tile({
     if (state === TileState.Revealed && value > 0) return value;
   }
 
+  function dispatchInteraction(interactionType: SessionActionType) {
+    dispatchGrid({ type: interactionType, payload: { index: index } });
+  }
+
   return (
     <S_OuterTile
       onMouseUp={(e) => {
-        if (e.button === 0)
-          handleTileInteraction(index, state, TileInteraction.LeftClick);
+        if (e.button === 0) dispatchInteraction(SessionActionType.LeftClick);
         else if (e.button === 2)
-          handleTileInteraction(index, state, TileInteraction.RightClick);
+          dispatchInteraction(SessionActionType.RightClick);
       }}
       onContextMenu={(e) => e.preventDefault()}
-      onMouseEnter={() =>
-        handleTileInteraction(index, state, TileInteraction.MouseEnter)
-      }
-      onMouseLeave={() =>
-        handleTileInteraction(index, state, TileInteraction.MouseLeave)
-      }
+      onMouseEnter={() => dispatchInteraction(SessionActionType.Hover)}
+      onMouseLeave={() => dispatchInteraction(SessionActionType.Unhover)}
       state={state}
     >
       <S_InnerTile state={state} value={value} data-testid="inner-tile">
@@ -56,7 +45,7 @@ export function Tile({
       </S_InnerTile>
     </S_OuterTile>
   );
-}
+});
 
 // STYLE
 function getBGColor(theme: DefaultTheme, state: TileState) {
