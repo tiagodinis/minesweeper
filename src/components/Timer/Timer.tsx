@@ -1,13 +1,14 @@
+import { useSession } from "../../stores/sessionStore";
+import { SessionState } from "../../utils/sessionConstants";
 import { useEffect, useState } from "react";
 import { S_Counter } from "../Indicators/Indicators";
 import { ReactComponent as Clock } from "../../assets/svg/clock.svg";
 
-type TimerProps = {
-  revealedOnce: boolean;
-  isRunning: boolean;
-};
-
-export default function Timer({ revealedOnce, isRunning }: TimerProps) {
+export default function Timer() {
+  const { interactionState, revealedOnce } = useSession();
+  const isRunning =
+    interactionState !== SessionState.Victory &&
+    interactionState !== SessionState.GameOver;
   const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {

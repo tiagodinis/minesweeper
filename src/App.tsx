@@ -3,6 +3,7 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import { useState } from "react";
 import Minesweeper from "./components/Minesweeper";
+import ThemeToggler from "./components/ThemeToggler/ThemeToggler";
 
 export default function App() {
   const [theme, setTheme] = useState(Theme.Light);
@@ -10,7 +11,8 @@ export default function App() {
   return (
     <ThemeProvider theme={theme === Theme.Light ? lightTheme : darkTheme}>
       <GlobalStyle />
-      <Minesweeper setTheme={setTheme} />
+      <Minesweeper />
+      <ThemeToggler setTheme={setTheme} />
     </ThemeProvider>
   );
 }

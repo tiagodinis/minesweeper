@@ -2,24 +2,22 @@ import Timer from "../Timer/Timer";
 import styled from "styled-components";
 import { ReactComponent as NavalMine } from "../../assets/svg/navalMine.svg";
 import { ReactComponent as Flag } from "../../assets/svg/flag.svg";
+import { useSessionSeed } from "../../stores/sessionSeedStore";
+import { useSession } from "../../stores/sessionStore";
 
-type IndicatorsProps = {
-  revealedOnce: boolean;
-  isRunning: boolean;
-  nrFlags: number;
-  nrMines: number;
-};
+export default function Indicators() {
+  const { nrMines } = useSessionSeed();
+  const { nrFlags } = useSession();
 
-export default function Indicators(props: IndicatorsProps) {
   return (
     <S_Indicators>
-      <Timer revealedOnce={props.revealedOnce} isRunning={props.isRunning} />
+      <Timer />
       <S_Counter>
-        {props.nrFlags}
+        {nrFlags}
         <Flag />
       </S_Counter>
       <S_Counter wrapAvatar iconTopOffset={-1}>
-        {props.nrMines - props.nrFlags}
+        {nrMines - nrFlags}
         <NavalMine />
       </S_Counter>
     </S_Indicators>

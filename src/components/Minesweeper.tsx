@@ -1,71 +1,39 @@
-import ThemeToggler from "./ThemeToggler/ThemeToggler";
-import { Theme } from "../styles/themes";
-import useGameSession from "../hooks/useGameSession";
 import Grid from "./Grid/Grid";
 import styled from "styled-components";
 import SettingsManager from "./Settings/SettingsManager";
 import Avatar from "./Avatar/Avatar";
 import Indicators from "./Indicators/Indicators";
-import { SessionState } from "../utils/sessionConstants";
 import Header from "./Header/Header";
 import { SessionSeedProvider } from "../stores/sessionSeedStore";
 import { SessionProvider } from "../stores/sessionStore";
+import SessionDispatcher from "./SessionDispatcher";
 
-type MinesweeperProps = {
-  setTheme: (newTheme: Theme) => void;
-};
-
-export default function Minesweeper({ setTheme }: MinesweeperProps) {
-  // const {
-  //   cols,
-  //   rows,
-  //   nrMines,
-  //   registerSettings,
-  //   sessionState,
-  //   revealedOnce,
-  //   nrFlags,
-  //   tileValues,
-  //   tileStates,
-  //   restartGameSession,
-  //   handleTileInteraction,
-  // } = useGameSession();
-
+export default function Minesweeper() {
   return (
-    <>
-      <S_Minesweeper>
-        <SessionSeedProvider>
-          <SessionProvider>
-            <Header />
+    <S_Minesweeper>
+      <SessionSeedProvider>
+        <SessionProvider>
+          <SessionDispatcher />
+          <Header />
 
-            <S_BoardWrapper>
-              <S_Board>
-                <S_BoardHeader>
-                  {/* <Indicators
-                    nrMines={nrMines}
-                    nrFlags={nrFlags}
-                    revealedOnce={revealedOnce}
-                    isRunning={
-                      sessionState !== SessionState.Victory &&
-                      sessionState !== SessionState.GameOver
-                    }
-                  /> */}
-                  <Avatar />
-                  {/*
-                  <SettingsManager
-                    registerSettings={registerSettings}
-                    restartGameSession={restartGameSession}
-                  /> */}
-                </S_BoardHeader>
+          <S_BoardWrapper>
+            <S_Board>
+              <S_BoardHeader>
+                <Indicators />
+                <Avatar />
+                {/*
+                <SettingsManager
+                  registerSettings={registerSettings}
+                  restartGameSession={restartGameSession}
+                /> */}
+              </S_BoardHeader>
 
-                <Grid />
-              </S_Board>
-            </S_BoardWrapper>
-          </SessionProvider>
-        </SessionSeedProvider>
-      </S_Minesweeper>
-
-      <ThemeToggler setTheme={setTheme} />
-    </>
+              <Grid />
+            </S_Board>
+          </S_BoardWrapper>
+        </SessionProvider>
+      </SessionSeedProvider>
+    </S_Minesweeper>
   );
 }
 

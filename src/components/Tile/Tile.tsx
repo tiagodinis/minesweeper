@@ -14,7 +14,7 @@ type TileProps = {
 
 export const Tile = memo(function Tile({ index, value, state }: TileProps) {
   const theme = useTheme();
-  const dispatchGrid = useSessionDispatch();
+  const dispatchSession = useSessionDispatch();
 
   function getTileContent(state: TileState) {
     if (state === TileState.Flagged) return <Flag fill={theme.fontColor} />;
@@ -25,7 +25,7 @@ export const Tile = memo(function Tile({ index, value, state }: TileProps) {
   }
 
   function dispatchInteraction(interactionType: SessionActionType) {
-    dispatchGrid({ type: interactionType, payload: { index: index } });
+    dispatchSession({ type: interactionType, payload: { index: index } });
   }
 
   return (

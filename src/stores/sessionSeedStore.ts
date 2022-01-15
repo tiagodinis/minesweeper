@@ -23,5 +23,5 @@ function getInitialState(cols: number, rows: number, nrMines: number) {
 }
 
 const [SessionSeedProvider, useSessionSeed, useSetSessionSeed] =
-  makeSimpleStore<SessionSeed>(getInitialState(24, 24, 30));
+  makeSimpleStore<SessionSeed>(getInitialState(9, 9, 5));
 export { SessionSeedProvider, useSessionSeed, useSetSessionSeed };

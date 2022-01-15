@@ -1,12 +1,17 @@
 import { createContext, Dispatch, useContext, useReducer } from "react";
 import { SessionSeed, useSessionSeed } from "../stores/sessionSeedStore";
-import { onGameOverReveal, revealNeighbours } from "../utils/minesweeperGrid";
+import {
+  flagMines,
+  onGameOverReveal,
+  revealNeighbours,
+} from "../utils/minesweeperGrid";
 import { SessionState, TileState } from "../utils/sessionConstants";
 
 type Session = {
   interactionState: SessionState;
   tileStates: TileState[];
   revealedOnce: boolean;
+  isLeftMouseDown: boolean;
   nrFlags: number;
   nrUnrevealed: number;
 };
@@ -21,6 +26,8 @@ export enum SessionActionType {
   Unhover,
   LeftClick,
   RightClick,
+  LeftDown,
+  LeftUp,
 }
 
 type SessionStore = [
@@ -49,6 +56,16 @@ export default function makeSessionStore(): SessionStore {
     if (state.interactionState === SessionState.Victory) return state;
     if (state.interactionState === SessionState.GameOver) return state;
 
+    console.log(action.type);
+
+    // LeftMouseDown
+    if (action.type === SessionActionType.LeftDown) {
+      // TODO: Check if anticipation if hovering idle
+      return { ...state, isLeftMouseDown: true };
+    }
+    if (action.type === SessionActionType.LeftUp) {
+      return { ...state, isLeftMouseDown: false };
+    }
     // Hovering
     if (tState === TileState.Idle && action.type === SessionActionType.Hover)
       return {
@@ -58,8 +75,10 @@ export default function makeSessionStore(): SessionStore {
           tIndex,
           TileState.Hovered
         ),
+        interactionState: state.isLeftMouseDown
+          ? SessionState.Anticipation
+          : state.interactionState,
       };
-
     if (
       tState === TileState.Hovered &&
       action.type === SessionActionType.Unhover
@@ -67,6 +86,7 @@ export default function makeSessionStore(): SessionStore {
       return {
         ...state,
         tileStates: changeSingleTile(state.tileStates, tIndex, TileState.Idle),
+        interactionState: SessionState.Idle,
       };
     // Clicking
     if (
@@ -75,14 +95,14 @@ export default function makeSessionStore(): SessionStore {
     )
       return revealTile(seed, state, tIndex);
     if (action.type === SessionActionType.RightClick)
-      return toggleTileFlag(state, tIndex, tState);
+      return toggleTileFlag(seed.nrMines, state, tIndex, tState);
 
     return state;
   }
 
   function revealTile(seed: SessionSeed, state: Session, index: number) {
     const { cols, rows, tileValues } = seed;
-    const { tileStates } = state;
+    const { tileStates, nrUnrevealed } = state;
     // Mine
     if (tileValues[index] === -1) {
       const newTileStates = onGameOverReveal(index, tileStates, tileValues);
@@ -102,67 +122,80 @@ export default function makeSessionStore(): SessionStore {
         tileStates,
         tileValues
       );
-      // changes:
-      // * revealed once
-      // * nrUnrevealed
-      // * interactionState
-      // updateUnrevealed(nrUnrevealed - revealedTiles);
       // TODO: setPrevTileState(TileState.Revealed);
-      return { ...state, tileStates: newTileStates };
+      return {
+        ...state,
+        ...updateUnrevealed(seed, newTileStates, nrUnrevealed - revealedTiles),
+      };
     }
     // Adjacent
-    // TODO: updateUnrevealed(nrUnrevealed - 1);
+    const newTileStates = changeSingleTile(
+      state.tileStates,
+      index,
+      TileState.Revealed
+    );
     return {
       ...state,
-      tileStates: changeSingleTile(state.tileStates, index, TileState.Revealed),
+      ...updateUnrevealed(seed, newTileStates, nrUnrevealed - 1),
     };
   }
 
-  // function updateUnrevealed(newNrUnrevealed: number) {
-  //   return {
-  //     revealedOnce: newNrUnrevealed < nrTiles,
-  //     nrUnrevealed: newNrUnrevealed,
-  //     interactionState:
-  //   };
+  function updateUnrevealed(
+    seed: SessionSeed,
+    tileStates: TileState[],
+    newNrUnrevealed: number
+  ) {
+    let newTileStates: TileState[] = tileStates;
+    let newInteractionState = SessionState.Idle;
+    if (newNrUnrevealed === seed.nrMines) {
+      newTileStates = flagMines(tileStates, seed.tileValues);
+      newInteractionState = SessionState.Victory;
+    }
 
-  //   if (newNrUnrevealed === nrMines) {
-  //     setSessionState(SessionState.Victory);
-  //     setTileStates(flagMines(tileStates, tileValues));
-  //   } else setSessionState(SessionState.Idle);
-  // }
+    return {
+      revealedOnce: newNrUnrevealed < seed.nrTiles,
+      nrUnrevealed: newNrUnrevealed,
+      interactionState: newInteractionState,
+      tileStates: newTileStates,
+    };
+  }
 
-  function toggleTileFlag(state: Session, index: number, tState: TileState) {
+  function toggleTileFlag(
+    nrMines: number,
+    state: Session,
+    index: number,
+    tState: TileState
+  ) {
     if (tState === TileState.Hovered) {
-      // TODO:
-      // setNrFlags(nrFlags + 1);
-      // if (nrFlags + 1 > nrMines) setSessionState(SessionState.Confused);
-      // else setSessionState(SessionState.JustFlagged);
       return {
         ...state,
+        interactionState:
+          state.nrFlags + 1 > nrMines
+            ? SessionState.Confused
+            : SessionState.JustFlagged,
         tileStates: changeSingleTile(
           state.tileStates,
           index,
           TileState.Flagged
         ),
+        nrFlags: state.nrFlags + 1,
       };
     } else if (tState === TileState.Flagged) {
-      // TODO:
-      // setNrFlags(nrFlags - 1);
-      // setSessionState(SessionState.Confused);
       return {
         ...state,
+        interactionState: SessionState.Confused,
         tileStates: changeSingleTile(
           state.tileStates,
           index,
           TileState.Hovered
         ),
+        nrFlags: state.nrFlags - 1,
       };
     }
 
     return state;
   }
 
-  // TODO: return only new tileStates array
   function changeSingleTile(
     tileStates: TileState[],
     index: number,
@@ -173,15 +206,6 @@ export default function makeSessionStore(): SessionStore {
       newTileState,
       ...tileStates.slice(index + 1),
     ];
-
-    // return {
-    //   ...state,
-    //   tileStates: [
-    //     ...state.tileStates.slice(0, index),
-    //     newTileState,
-    //     ...state.tileStates.slice(index + 1),
-    //   ],
-    // };
   }
 
   // PROVIDER
@@ -198,20 +222,19 @@ export default function makeSessionStore(): SessionStore {
   }
 
   function useDepInjectedStore() {
-    const initialSession = useSessionSeed();
+    const seed = useSessionSeed();
 
     const initialState = {
       interactionState: SessionState.Idle,
-      tileStates: Array(initialSession.cols * initialSession.rows).fill(
-        TileState.Idle
-      ),
+      tileStates: Array(seed.nrTiles).fill(TileState.Idle),
       revealedOnce: false,
+      isLeftMouseDown: false,
       nrFlags: 0,
-      nrUnrevealed: initialSession.cols * initialSession.rows,
+      nrUnrevealed: seed.nrTiles,
     };
 
     const depInjectedReducer = (state: Session, action: SessionAction) =>
-      sessionReducer(initialSession, state, action);
+      sessionReducer(seed, state, action);
 
     const [store, dispatch] = useReducer(depInjectedReducer, initialState);
     return { store, dispatch };
