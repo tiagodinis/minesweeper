@@ -1,44 +1,37 @@
+import {
+  createGameValues,
+  useSetGameValues,
+} from "../../stores/gameValuesStore";
+import { useGameSession } from "../../stores/gameSessionStore";
 import { useRef, useState } from "react";
-import styled from "styled-components";
 import {
   Difficulty,
   DifficultySettings,
   Settings,
-} from "../../utils/sessionConstants";
-import { ReactComponent as NavalMine } from "../../assets/svg/navalMine.svg";
-import { ReactComponent as Grid } from "../../assets/svg/grid.svg";
+} from "../../utils/gameConstants";
 import { clamp } from "../../utils/math";
+import { ReactComponent as NavalMineSVG } from "../../assets/svg/navalMine.svg";
+import { ReactComponent as GridSVG } from "../../assets/svg/grid.svg";
+import styled from "styled-components";
 
-type SettingsManagerProps = {
-  registerSettings: (settings: Settings) => void;
-  restartGameSession: () => void;
-};
-
-export default function SettingsManager({
-  registerSettings,
-  restartGameSession,
-}: SettingsManagerProps) {
+export default function SettingsManager() {
+  const setSessionValues = useSetGameValues();
+  const { revealedOnce } = useGameSession();
   const [difficulty, setDifficulty] = useState(Difficulty.Easy);
-  const [settings, setSettings] = useState(DifficultySettings[difficulty]);
+  const [[cols, rows, nrMines], setSettings] = useState(
+    DifficultySettings[difficulty]
+  );
   const firstParamRef = useRef<HTMLInputElement>(null);
 
   function handleDifficultyChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const dif = e.target.value;
-    if (
-      !(
-        dif === Difficulty.Easy ||
-        dif === Difficulty.Medium ||
-        dif === Difficulty.Hard ||
-        dif === Difficulty.Custom
-      )
-    )
-      return;
+    let dif = e.target.value as Difficulty;
+    if (!Object.keys(Difficulty).includes(dif)) return;
 
-    setDifficulty(Difficulty[dif]);
-    if (Difficulty[dif] === Difficulty.Custom) firstParamRef.current?.focus();
+    setDifficulty(dif);
+    if (dif === Difficulty.Custom) firstParamRef.current?.focus();
     else {
       setSettings(DifficultySettings[dif]);
-      registerSettings(DifficultySettings[dif]);
+      if (!revealedOnce) restartGameSession(...DifficultySettings[dif]);
     }
   }
 
@@ -49,20 +42,20 @@ export default function SettingsManager({
     let setting = parseInt(e.target.value);
     if (!setting) return;
 
-    if (index !== 2) setting = clamp(setting, 1, 24);
+    if (index !== 2) setting = clamp(setting, 1, 30);
 
-    const settingKey = Object.keys(settings)[index];
-    let newSettings = { ...settings, [settingKey]: setting };
+    let newSettings: Settings = [cols, rows, nrMines];
+    newSettings[index] = setting;
 
     // Make sure mines are in range [1, cols * rows]
-    newSettings.nrMines = clamp(
-      newSettings.nrMines,
-      1,
-      newSettings.cols * newSettings.rows
-    );
+    newSettings[2] = clamp(newSettings[2], 1, newSettings[0] * newSettings[1]);
 
     setSettings(newSettings);
-    registerSettings(newSettings);
+    if (!revealedOnce) restartGameSession(...newSettings);
+  }
+
+  function restartGameSession(cols: number, rows: number, nrMines: number) {
+    setSessionValues(createGameValues(cols, rows, nrMines));
   }
 
   const difficultyOption = (dif: Difficulty) => (
@@ -83,10 +76,8 @@ export default function SettingsManager({
     <S_DifficultyParam
       ref={index === 0 ? firstParamRef : null}
       type="number"
-      min="1"
-      max="20"
       value={value}
-      readOnly={difficulty !== "Custom"}
+      readOnly={difficulty !== Difficulty.Custom}
       difficulty={difficulty}
       onChange={(e) => handleParamChange(e, index)}
     />
@@ -101,15 +92,17 @@ export default function SettingsManager({
         {difficultyOption(Difficulty.Custom)}
       </S_DifficultySelect>
       <S_BottomRow>
-        <S_NewGameBtn onClick={restartGameSession}>Restart</S_NewGameBtn>
+        <S_NewGameBtn onClick={() => restartGameSession(cols, rows, nrMines)}>
+          Restart
+        </S_NewGameBtn>
         <S_SessionDetails>
-          {setting(0, settings.cols)}x{setting(1, settings.rows)}
+          {setting(0, cols)}x{setting(1, rows)}
           <S_ParamIconWrapper>
-            <Grid fill={"#1a1a1a"} />
+            <GridSVG />
           </S_ParamIconWrapper>
-          {setting(2, settings.nrMines)}
+          {setting(2, nrMines)}
           <S_ParamIconWrapper>
-            <NavalMine fill={"#1a1a1a"} />
+            <NavalMineSVG />
           </S_ParamIconWrapper>
         </S_SessionDetails>
       </S_BottomRow>
@@ -213,4 +206,8 @@ const S_DifficultyParam = styled.input<{ difficulty: Difficulty }>`
 const S_ParamIconWrapper = styled.div`
   width: 20px;
   height: 20px;
+
+  svg {
+    fill: #1a1a1a;
+  }
 `;

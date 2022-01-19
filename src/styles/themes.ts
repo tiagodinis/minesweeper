@@ -1,4 +1,4 @@
-import { Adjacency } from "../utils/sessionConstants";
+import { Adjacency } from "../utils/gameConstants";
 
 export enum Theme {
   Light,

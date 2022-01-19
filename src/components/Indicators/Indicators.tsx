@@ -1,24 +1,24 @@
+import { useGameValues } from "../../stores/gameValuesStore";
+import { useGameSession } from "../../stores/gameSessionStore";
 import Timer from "../Timer/Timer";
+import { ReactComponent as FlagSVG } from "../../assets/svg/flag.svg";
+import { ReactComponent as NavalMineSVG } from "../../assets/svg/navalMine.svg";
 import styled from "styled-components";
-import { ReactComponent as NavalMine } from "../../assets/svg/navalMine.svg";
-import { ReactComponent as Flag } from "../../assets/svg/flag.svg";
-import { useSessionSeed } from "../../stores/sessionSeedStore";
-import { useSession } from "../../stores/sessionStore";
 
 export default function Indicators() {
-  const { nrMines } = useSessionSeed();
-  const { nrFlags } = useSession();
+  const { nrMines } = useGameValues();
+  const { nrFlags } = useGameSession();
 
   return (
     <S_Indicators>
       <Timer />
       <S_Counter>
         {nrFlags}
-        <Flag />
+        <FlagSVG />
       </S_Counter>
       <S_Counter wrapAvatar iconTopOffset={-1}>
         {nrMines - nrFlags}
-        <NavalMine />
+        <NavalMineSVG />
       </S_Counter>
     </S_Indicators>
   );

@@ -1,4 +1,4 @@
-import { Adjacency, TileState } from "./sessionConstants";
+import { Adjacency, TileState } from "./gameConstants";
 import { clamp } from "./math";
 
 export function initTileValues(cols: number, rows: number, nrMines: number) {

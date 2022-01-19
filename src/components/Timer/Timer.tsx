@@ -1,14 +1,14 @@
-import { useSession } from "../../stores/sessionStore";
-import { SessionState } from "../../utils/sessionConstants";
+import { useGameSession } from "../../stores/gameSessionStore";
+import { InteractionState } from "../../utils/gameConstants";
 import { useEffect, useState } from "react";
 import { S_Counter } from "../Indicators/Indicators";
-import { ReactComponent as Clock } from "../../assets/svg/clock.svg";
+import { ReactComponent as ClockSVG } from "../../assets/svg/clock.svg";
 
 export default function Timer() {
-  const { interactionState, revealedOnce } = useSession();
+  const { interactionState, revealedOnce } = useGameSession();
   const isRunning =
-    interactionState !== SessionState.Victory &&
-    interactionState !== SessionState.GameOver;
+    interactionState !== InteractionState.Victory &&
+    interactionState !== InteractionState.GameOver;
   const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function Timer() {
 
   return (
     <S_Counter wrapAvatar>
-      {seconds} <Clock />
+      {seconds} <ClockSVG />
     </S_Counter>
   );
 }

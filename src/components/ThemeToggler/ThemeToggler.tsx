@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ReactComponent as Sun } from "../../assets/svg/sun.svg";
-import { ReactComponent as Moon } from "../../assets/svg/moon.svg";
+import { ReactComponent as SunSVG } from "../../assets/svg/sun.svg";
+import { ReactComponent as MoonSVG } from "../../assets/svg/moon.svg";
 import { Theme } from "../../styles/themes";
 import styled, { useTheme } from "styled-components";
 const lightOff = require("../../assets/audio/lightOff.mp3");
@@ -23,10 +23,10 @@ export default function ThemeToggler({ setTheme }: ThemeTogglerProps) {
   return (
     <ToggleThemeButton onClick={toggleTheme}>
       {theme.id === Theme.Light && (
-        <Moon fill={theme.BG} stroke={theme.fontColor} />
+        <MoonSVG fill={theme.BG} stroke={theme.fontColor} />
       )}
       {theme.id === Theme.Dark && (
-        <Sun fill={theme.BG} stroke={theme.fontColor} />
+        <SunSVG fill={theme.BG} stroke={theme.fontColor} />
       )}
     </ToggleThemeButton>
   );

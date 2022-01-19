@@ -1,10 +1,12 @@
-import { Adjacency, TileState } from "../../utils/sessionConstants";
-import { ReactComponent as Flag } from "../../assets/svg/flag.svg";
-import { ReactComponent as NavalMine } from "../../assets/svg/navalMine.svg";
-import styled, { DefaultTheme, useTheme } from "styled-components";
 import { memo } from "react";
-import { useSessionDispatch } from "../../stores/sessionStore";
-import { SessionActionType } from "../../hooks/makeSessionStore";
+import { Adjacency, TileState } from "../../utils/gameConstants";
+import {
+  GameActionType,
+  useDispatchGameSession,
+} from "../../stores/gameSessionStore";
+import { ReactComponent as FlagSVG } from "../../assets/svg/flag.svg";
+import { ReactComponent as NavalMineSVG } from "../../assets/svg/navalMine.svg";
+import styled, { DefaultTheme, useTheme } from "styled-components";
 
 type TileProps = {
   index: number;
@@ -14,33 +16,31 @@ type TileProps = {
 
 export const Tile = memo(function Tile({ index, value, state }: TileProps) {
   const theme = useTheme();
-  const dispatchSession = useSessionDispatch();
+  const dispatchGameSession = useDispatchGameSession();
 
   function getTileContent(state: TileState) {
-    if (state === TileState.Flagged) return <Flag fill={theme.fontColor} />;
-    if (state === TileState.WrongFlag) return <Flag />;
-    if (state === TileState.LosingMine) return <NavalMine />;
-    if (state === TileState.Revealed && value === -1) return <NavalMine />;
+    if (state === TileState.Flagged) return <FlagSVG fill={theme.fontColor} />;
+    if (state === TileState.WrongFlag) return <FlagSVG />;
+    if (state === TileState.LosingMine) return <NavalMineSVG />;
+    if (state === TileState.Revealed && value === -1) return <NavalMineSVG />;
     if (state === TileState.Revealed && value > 0) return value;
   }
 
-  function dispatchInteraction(interactionType: SessionActionType) {
-    dispatchSession({ type: interactionType, payload: { index: index } });
-  }
+  const dispatchInteraction = (interactionType: GameActionType) =>
+    dispatchGameSession({ type: interactionType, payload: { index: index } });
 
   return (
     <S_OuterTile
       onMouseUp={(e) => {
-        if (e.button === 0) dispatchInteraction(SessionActionType.LeftClick);
-        else if (e.button === 2)
-          dispatchInteraction(SessionActionType.RightClick);
+        if (e.button === 0) dispatchInteraction(GameActionType.LeftClick);
+        else if (e.button === 2) dispatchInteraction(GameActionType.RightClick);
       }}
       onContextMenu={(e) => e.preventDefault()}
-      onMouseEnter={() => dispatchInteraction(SessionActionType.Hover)}
-      onMouseLeave={() => dispatchInteraction(SessionActionType.Unhover)}
+      onMouseEnter={() => dispatchInteraction(GameActionType.Hover)}
+      onMouseLeave={() => dispatchInteraction(GameActionType.Unhover)}
       state={state}
     >
-      <S_InnerTile state={state} value={value} data-testid="inner-tile">
+      <S_InnerTile state={state} value={value}>
         {getTileContent(state)}
       </S_InnerTile>
     </S_OuterTile>

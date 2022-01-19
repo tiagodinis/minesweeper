@@ -1,13 +1,11 @@
-import { useSessionSeed } from "../../stores/sessionSeedStore";
-import { useSession } from "../../stores/sessionStore";
+import { useGameValues } from "../../stores/gameValuesStore";
+import { useGameSession } from "../../stores/gameSessionStore";
 import { Tile } from "../Tile/Tile";
 import styled from "styled-components";
 
 export default function Grid() {
-  const { cols, rows, tileValues } = useSessionSeed();
-  const { tileStates } = useSession();
-
-  // console.log("Grid");
+  const { cols, rows, tileValues } = useGameValues();
+  const { tileStates } = useGameSession();
 
   return (
     <S_OuterGrid>
