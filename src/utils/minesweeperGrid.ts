@@ -65,14 +65,17 @@ export function revealNeighbours(
   let queue = [index];
 
   // Reveal neighbours of an empty tile, add empty neighbours found to queue
-  while (queue.length) {
-    getValidNeighbours(queue.shift()!, cols, rows).forEach((nInd) => {
-      if (newTileStates[nInd] !== TileState.Idle) return;
-      newTileStates[nInd] = TileState.Revealed;
-      revealedTiles++;
-      if (tileValues[nInd] === 0) queue.push(nInd);
-    });
+  function revealAndRegisterEmpty(nInd: number) {
+    if (newTileStates[nInd] !== TileState.Idle) return;
+    newTileStates[nInd] = TileState.Revealed;
+    revealedTiles++;
+    if (tileValues[nInd] === 0) queue.push(nInd);
   }
+
+  while (queue.length)
+    getValidNeighbours(queue.shift()!, cols, rows).forEach(
+      revealAndRegisterEmpty
+    );
 
   return { newTileStates, revealedTiles };
 }

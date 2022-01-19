@@ -67,7 +67,7 @@ function reducer(deps: GameSessionDeps, state: Game, action: GameAction) {
     return { ...state, isLeftMouseDown: false };
   }
 
-  if (action.payload === undefined) throw "Action should contain a payload";
+  if (action.payload === undefined) throw new Error("Action has no payload");
 
   const tIndex = action.payload.index;
   const tState = state.tileStates[tIndex];
